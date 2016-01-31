@@ -1,20 +1,23 @@
 #include "Dequeue.h"
 #include <stdlib.h>
 #include <assert.h>
+#include <stdio.h>
 
-void initialise(queue** q)
+void initialise(queue* q)
 {
-	*q = malloc(sizeof(queue));
-	(*q)->head = (*q)->tail = NULL;
-	(*q)->size = 0;
+	q->head = NULL;
+	q->tail = NULL;
+	q->size = 0;
 }
 
 void addDQ(queue* q, void* data)
 {
-	assert(q);
-	if(!(q->tail))
+	assert(q != NULL);
+
+	if(!(q->head))
 	{
-		q->head = q->tail = malloc(sizeof(queue_node_t));
+		q->head = malloc(sizeof(queue_node_t));
+		q->tail = q->head;
 		q->head->data = data;
 	}
 	else
@@ -23,24 +26,31 @@ void addDQ(queue* q, void* data)
 		q->tail->next->data = data;
 		q->tail = q->tail->next;
 	}
+	q->size++;
 }
 
 void* dequeueDQ(queue* q)
 {
-	assert(q && q->tail);
+	assert(q && q->head);
 	void* data = NULL;
 	if(q->head == q->tail)
 	{
 		data = q->tail->data;
-		q->head = q->tail = NULL;
+		q->head = NULL;
+		q->tail = NULL;
 	}
 	else
 	{
-		data = q->tail->data;
+		data = q->head->data;
 		queue_node_t* curr = q->head;
-		while(curr->next != q->tail) curr = curr->next;
-		free(q->tail);
-		q->tail = curr;
+		q->head = q->head->next;
+		free(curr);
 	}
+	q->size--;
 	return data;
+}
+
+int sizeDQ(queue* q)
+{
+	return q->size;
 }
